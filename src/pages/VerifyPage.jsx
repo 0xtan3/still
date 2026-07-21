@@ -39,7 +39,11 @@ export default function VerifyPage() {
 
       <header className={styles.header}>
         <Link to="/" className={styles.brand}>
-          <span className={styles.brandDot} /> STILL
+          <span className={styles.brandDot} />
+          <div className={styles.brandTextGroup}>
+            <span className={styles.brandTitleText}>CHRONO</span>
+            <span className={styles.byline}>by TENAZITY</span>
+          </div>
         </Link>
       </header>
 
@@ -48,7 +52,7 @@ export default function VerifyPage() {
           <div className={styles.box}>
             <div className={styles.spinner} />
             <h2 className={styles.title}>Verifying Your Account...</h2>
-            <p className={styles.sub}>Connecting to STILL authentication services</p>
+            <p className={styles.sub}>Connecting to CHRONO authentication services</p>
           </div>
         )}
 
@@ -60,7 +64,7 @@ export default function VerifyPage() {
               Your email has been successfully verified. You can now log in and start tracking your focus sessions.
             </p>
             <button className={styles.actionBtn} onClick={() => navigate('/login')}>
-              Log In to STILL →
+              Log In to CHRONO →
             </button>
           </div>
         )}

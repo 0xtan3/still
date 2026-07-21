@@ -12,7 +12,7 @@ function daysBetween(a, b) {
 }
 
 // ── Persistence ───────────────────────────────────────────────────────────────
-const LS_KEY = 'stillTimer_v1';
+const LS_KEY = 'chronoTimer_v1';
 
 function loadStreak() {
   try { const r = localStorage.getItem(LS_KEY); if (r) return JSON.parse(r); } catch { }

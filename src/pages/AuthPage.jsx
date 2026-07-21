@@ -5,12 +5,12 @@ import { useStore } from '../store';
 import styles from './AuthPage.module.css';
 
 export default function AuthPage() {
-  const [tab, setTab]         = useState('login'); // 'login' | 'register'
-  const [email, setEmail]     = useState('');
+  const [tab, setTab] = useState('login'); // 'login' | 'register'
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName]       = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [resending, setResending] = useState(false);
@@ -76,7 +76,7 @@ export default function AuthPage() {
         <Link to="/" className={styles.brand}>
           <span className={styles.brandDot} />
           <div className={styles.brandTextGroup}>
-            <span className={styles.brandTitleText}>STILL</span>
+            <span className={styles.brandTitleText}>CHRONO</span>
             <span className={styles.byline}>by TENAZITY</span>
           </div>
         </Link>
@@ -90,7 +90,7 @@ export default function AuthPage() {
           <p className={styles.cardSub}>
             {tab === 'login'
               ? 'Log in to sync your focus streaks across devices'
-              : 'Join STILL to track your focus streaks and level up'}
+              : 'Join CHRONO to track your focus streaks and level up'}
           </p>
         </div>
 
@@ -184,8 +184,8 @@ export default function AuthPage() {
             {loading
               ? 'Processing...'
               : tab === 'login'
-              ? 'Log In'
-              : 'Create STILL Account & Send Verification'}
+                ? 'Log In'
+                : 'Register'}
           </button>
         </form>
       </div>

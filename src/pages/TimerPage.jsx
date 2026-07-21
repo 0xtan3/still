@@ -162,7 +162,7 @@ export default function TimerPage() {
   // Document title
   const remaining = Math.max(0, dur - elapsed);
   useEffect(() => {
-    document.title = `${fmt(remaining)} — STILL`;
+    document.title = `${fmt(remaining)} — CHRONO`;
   }, [remaining, mode]);
 
   return (
@@ -176,7 +176,7 @@ export default function TimerPage() {
         <div className={styles.brandTitle}>
           <span className={styles.brandDot} />
           <div className={styles.brandTextGroup}>
-            <h1 className={styles.title}>STILL</h1>
+            <h1 className={styles.title}>CHRONO</h1>
             <span className={styles.byline}>by TENAZITY</span>
           </div>
         </div>
