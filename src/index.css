@@ -1,0 +1,78 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #080b12;
+  --surface: #10131f;
+  --surface2: #181c2e;
+  --surface3: #1f2340;
+  --border: rgba(255, 255, 255, .07);
+
+  --ah: 252;
+  --as: 90%;
+  --al: 65%;
+
+  --accent: hsl(var(--ah), var(--as), var(--al));
+  --accent-dim: hsl(var(--ah), var(--as), calc(var(--al) - 20%));
+  --accent-glow: hsl(var(--ah), var(--as), calc(var(--al) - 10%));
+
+  --text: #e8ecff;
+  --text-muted: rgba(232, 236, 255, .45);
+
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* ── Theme Definitions ───────────────────────────────────────────────────────── */
+[data-theme="midnight"] {
+  --bg: #080b12;
+  --ah: 252;
+}
+
+[data-theme="deep_space"] {
+  --bg: #030712;
+  --ah: 217;
+}
+
+[data-theme="cyberpunk"] {
+  --bg: #0d021a;
+  --ah: 330;
+}
+
+[data-theme="zen_forest"] {
+  --bg: #02140f;
+  --ah: 160;
+}
+
+[data-theme="solar_amber"] {
+  --bg: #1a0b02;
+  --ah: 38;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Orbitron', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  transition: background 0.6s ease;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 15%, hsla(var(--ah), 80%, 60%, .08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 85%, hsla(162, 70%, 55%, .05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}

@@ -1,0 +1,330 @@
+import { create } from 'zustand';
+import { playChime } from './utils/audio';
+import { getCurrentUser, logoutUser, fetchUserStats, saveUserStats } from './lib/appwrite';
+
+// ── Date helpers ─────────────────────────────────────────────────────────────
+export function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
+
+// ── Persistence ───────────────────────────────────────────────────────────────
+const LS_KEY = 'stillTimer_v1';
+
+function loadStreak() {
+  try { const r = localStorage.getItem(LS_KEY); if (r) return JSON.parse(r); } catch { }
+  return { days: {}, streak: 0, bestStreak: 0, totalXP: 0, lastActiveDate: null, shownMs: [] };
+}
+function persist(s) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch { }
+}
+
+// ── Level table ───────────────────────────────────────────────────────────────
+export const LEVELS = [
+  { xp: 0, name: 'Seedling', n: 1 },
+  { xp: 100, name: 'Student', n: 2 },
+  { xp: 300, name: 'Scholar', n: 3 },
+  { xp: 700, name: 'Expert', n: 4 },
+  { xp: 1500, name: 'Master', n: 5 },
+  { xp: 3000, name: 'Legend', n: 6 },
+  { xp: 6000, name: 'Immortal', n: 7 },
+];
+export function getLevelInfo(xp) {
+  let lvl = LEVELS[0], next = LEVELS[1];
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (xp >= LEVELS[i].xp) { lvl = LEVELS[i]; next = LEVELS[i + 1] ?? null; }
+  }
+  const progress = next ? (xp - lvl.xp) / (next.xp - lvl.xp) : 1;
+  return { lvl, next, progress, toNext: next ? next.xp - xp : 0 };
+}
+
+// ── Milestone config ──────────────────────────────────────────────────────────
+export const MILESTONES = [
+  { days: 3, emoji: '🌱', title: '3-Day Streak!', sub: 'Consistency is everything. Keep it up!' },
+  { days: 7, emoji: '🔥', title: 'One Full Week!', sub: 'Seven days straight. This is becoming a habit.' },
+  { days: 14, emoji: '⚡', title: '14-Day Streak!', sub: 'Two weeks! Your future self thanks you.' },
+  { days: 21, emoji: '🎯', title: '21-Day Streak!', sub: 'Science says habits form at 21 days. You made it!' },
+  { days: 30, emoji: '🏆', title: '30-Day Streak!', sub: 'A full month. Truly unstoppable.' },
+  { days: 60, emoji: '💎', title: '60 Days Strong!', sub: 'Diamond-level dedication.' },
+  { days: 100, emoji: '👑', title: '100-Day Streak!', sub: 'ONE HUNDRED DAYS. You are a legend.' },
+];
+
+// ── Mode config ───────────────────────────────────────────────────────────────
+export const MODES = {
+  focus: { label: 'Focus', h: 252, s: 88, lb: 65, defaultMin: 25 },
+  short: { label: 'Short Break', h: 162, s: 72, lb: 60, defaultMin: 5 },
+  long: { label: 'Long Break', h: 200, s: 78, lb: 62, defaultMin: 15 },
+};
+export const FOCUS_PRESETS = [25, 50, 90];
+export const BREAK_PRESETS = [5, 10, 15];
+
+// ── Visualizers Catalog ────────────────────────────────────────────────────────
+export const VISUALIZERS = [
+  { id: 'liquid_blob', name: 'Liquid Blob', reqStreak: 0, emoji: '🔮', desc: '3D fluid wave sphere' },
+  { id: 'blank',       name: 'Blank Minimal', reqStreak: 0, emoji: '✨', desc: 'Clean typography (no visualizer)' },
+  { id: 'neon_ring',   name: 'Neon Torus',   reqStreak: 3, emoji: '⭕', desc: 'Rotating cyberpunk energy ring' },
+  { id: 'cosmic_orb',  name: 'Cosmic Orb',   reqStreak: 7, emoji: '🌌', desc: 'Deep space stardust particle sphere' },
+];
+
+// ── Background Themes Catalog ──────────────────────────────────────────────────
+export const THEMES = [
+  { id: 'midnight',    name: 'Midnight Void', reqStreak: 0, emoji: '🌑', bg: '#080b12', accent: '#7c3aed' },
+  { id: 'deep_space',  name: 'Deep Cosmos',   reqStreak: 3, emoji: '🌌', bg: '#030712', accent: '#3b82f6' },
+  { id: 'cyberpunk',   name: 'Neon Cyber',    reqStreak: 7, emoji: '🔮', bg: '#0d021a', accent: '#ec4899' },
+  { id: 'zen_forest',  name: 'Zen Emerald',   reqStreak: 14, emoji: '🌲', bg: '#02140f', accent: '#10b981' },
+  { id: 'solar_amber', name: 'Solar Amber',   reqStreak: 21, emoji: '🌅', bg: '#1a0b02', accent: '#f59e0b' },
+];
+
+// ── Streak helpers (pure) ─────────────────────────────────────────────────────
+function recalcStreak(s) {
+  if (!s.lastActiveDate) return { ...s, streak: 0 };
+  const gap = daysBetween(s.lastActiveDate, todayStr());
+  if (gap > 1) return { ...s, streak: 0, lastActiveDate: null };
+  return s;
+}
+
+function applySession(s, xpEarned) {
+  const today = todayStr();
+  const days = { ...s.days };
+  if (!days[today]) days[today] = { sessions: 0, xp: 0 };
+  days[today] = { sessions: days[today].sessions + 1, xp: days[today].xp + xpEarned };
+
+  let streak = s.streak;
+  if (!s.lastActiveDate) {
+    streak = 1;
+  } else if (s.lastActiveDate === today) {
+    // already active today — streak unchanged
+  } else if (daysBetween(s.lastActiveDate, today) === 1) {
+    streak += 1;
+  } else {
+    streak = 1;
+  }
+  const bestStreak = Math.max(streak, s.bestStreak);
+  const totalXP = s.totalXP + xpEarned;
+  return { ...s, days, streak, bestStreak, totalXP, lastActiveDate: today };
+}
+
+// ── Zustand store ─────────────────────────────────────────────────────────────
+const initialStreak = recalcStreak(loadStreak());
+
+export const useStore = create((set, get) => ({
+  // ── Auth State ──────────────────────────────────────────────
+  user: null,
+  authLoading: true,
+  userDocId: null,
+
+  async initAuth() {
+    set({ authLoading: true });
+    try {
+      const u = await getCurrentUser();
+      if (u) {
+        set({ user: u });
+        // Fetch stats from Appwrite
+        const cloudStats = await fetchUserStats(u.$id);
+        if (cloudStats) {
+          set({
+            userDocId: cloudStats.docId,
+            streak: cloudStats.streak,
+            bestStreak: cloudStats.bestStreak,
+            totalXP: cloudStats.totalXP,
+            lastActiveDate: cloudStats.lastActiveDate,
+            days: cloudStats.days,
+            shownMs: cloudStats.shownMs,
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('initAuth error:', e);
+    } finally {
+      set({ authLoading: false });
+    }
+  },
+
+  setUser(user) {
+    set({ user });
+    if (user) {
+      get().syncCloudStats();
+    }
+  },
+
+  async logout() {
+    await logoutUser();
+    set({ user: null, userDocId: null });
+  },
+
+  async syncCloudStats() {
+    const s = get();
+    if (!s.user) return;
+    const statsData = {
+      streak: s.streak,
+      bestStreak: s.bestStreak,
+      totalXP: s.totalXP,
+      lastActiveDate: s.lastActiveDate,
+      days: s.days,
+      shownMs: s.shownMs,
+    };
+    const res = await saveUserStats(s.user.$id, statsData, s.userDocId);
+    if (res && res.$id) {
+      set({ userDocId: res.$id });
+    }
+  },
+
+  // ── Timer state ─────────────────────────────────────────────
+  mode: 'focus',
+  running: false,
+  elapsed: 0,          // seconds
+  startMs: null,
+  durations: { focus: 25 * 60, short: 5 * 60, long: 15 * 60 },
+  sessions: 0,
+  totalSess: 4,
+
+  // ── Streak / XP (persisted) ─────────────────────────────────
+  ...initialStreak,
+
+  soundEnabled: true,
+  milestone: null,
+  completedPrompt: null, // { nextMode: 'short' | 'long' } | null
+  selectedVisualizer: 'liquid_blob',
+  selectedTheme: 'midnight',
+  isSettingsOpen: false,
+
+  toggleSettings() {
+    set(s => ({ isSettingsOpen: !s.isSettingsOpen }));
+  },
+
+  setVisualizer(visId) {
+    const s = get();
+    const vis = VISUALIZERS.find(v => v.id === visId);
+    if (!vis) return;
+    if (s.bestStreak >= vis.reqStreak) {
+      set({ selectedVisualizer: visId });
+    }
+  },
+
+  setTheme(themeId) {
+    const s = get();
+    const th = THEMES.find(t => t.id === themeId);
+    if (!th) return;
+    if (s.bestStreak >= th.reqStreak) {
+      set({ selectedTheme: themeId });
+    }
+  },
+
+  toggleSound() {
+    set(s => ({ soundEnabled: !s.soundEnabled }));
+  },
+
+  dismissCompletedPrompt() {
+    set({ completedPrompt: null });
+  },
+
+  chooseFocusAgain() {
+    set({ completedPrompt: null, mode: 'focus', elapsed: 0, running: false });
+  },
+
+  chooseTakeBreak() {
+    const s = get();
+    const nextMode = s.completedPrompt?.nextMode || (s.sessions % s.totalSess === 0 ? 'long' : 'short');
+    set({ completedPrompt: null, mode: nextMode, elapsed: 0, running: false });
+  },
+
+  setMode(mode) {
+    const s = get();
+    if (s.running) clearInterval(s._interval);
+    set({ mode, running: false, elapsed: 0, startMs: null });
+  },
+
+  tick() {
+    const s = get();
+    if (!s.running) return;
+    const now = performance.now();
+    const elapsed = s.elapsed + (now - s.startMs) / 1000;
+    const dur = s.durations[s.mode];
+    if (elapsed >= dur) {
+      set({ elapsed: dur, running: false, startMs: null });
+      get().onComplete();
+    } else {
+      set({ elapsed, startMs: now });
+    }
+  },
+
+  play() {
+    set({ running: true, startMs: performance.now() });
+  },
+
+  pause() {
+    set({ running: false, startMs: null });
+  },
+
+  reset() {
+    set({ running: false, elapsed: 0, startMs: null });
+  },
+
+  skip() {
+    const s = get();
+    set({ elapsed: s.durations[s.mode], running: false, startMs: null });
+    get().onComplete();
+  },
+
+  setDuration(modeKey, minutes) {
+    const s = get();
+    const durations = { ...s.durations, [modeKey]: minutes * 60 };
+    set({ durations, elapsed: modeKey === s.mode ? 0 : s.elapsed });
+  },
+
+  onComplete() {
+    const s = get();
+    if (s.soundEnabled) {
+      playChime();
+    }
+
+    if (s.mode !== 'focus') {
+      // Break complete -> prompt or auto back to focus
+      set({ completedPrompt: { isBreak: true, nextMode: 'focus' } });
+      return;
+    }
+
+    // Focus session complete
+    const sessions = Math.min(s.sessions + 1, s.totalSess);
+    const focusMins = Math.round(s.durations.focus / 60);
+    const bonus = s.streak >= 30 ? 2 : s.streak >= 7 ? 1.5 : 1;
+    const xp = Math.round(focusMins * bonus);
+
+    const prevLvl = getLevelInfo(s.totalXP).lvl.n;
+    const newState = applySession(s, xp);
+    const newLvl = getLevelInfo(newState.totalXP).lvl.n;
+
+    // Check milestones
+    const found = MILESTONES.find(
+      m => m.days === newState.streak && !newState.shownMs.includes(m.days)
+    );
+    const shownMs = found ? [...newState.shownMs, found.days] : newState.shownMs;
+
+    persist({ ...newState, shownMs });
+
+    const nextMode = sessions % s.totalSess === 0 ? 'long' : 'short';
+
+    set({
+      ...newState,
+      sessions,
+      shownMs,
+      xpFlash: { amount: xp, bonus: bonus > 1, levelUp: newLvl > prevLvl, ts: Date.now() },
+      milestone: found ?? null,
+      completedPrompt: { isBreak: false, nextMode },
+    });
+
+    // Cloud sync
+    get().syncCloudStats();
+  },
+
+  dismissMilestone() {
+    set({ milestone: null });
+  },
+
+  clearXpFlash() {
+    set({ xpFlash: null });
+  },
+}));

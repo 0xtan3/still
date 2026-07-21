@@ -1,0 +1,453 @@
+.pageViewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 2.2rem 1.8rem;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Top Header Bar */
+.topHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.brandTitle {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.brandDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.brandTextGroup {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.byline {
+  font-size: .55rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: .8;
+  margin-top: .15rem;
+}
+
+.quoteBox {
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  max-width: 320px;
+  text-align: right;
+  line-height: 1.35;
+  letter-spacing: -.01em;
+  opacity: .85;
+}
+
+/* Center Stage Container (Vertically & Horizontally Centered) */
+.centerStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  margin: auto 0;
+  position: relative;
+  z-index: 5;
+}
+
+.promptText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -.01em;
+  margin-bottom: .2rem;
+}
+
+.dotsRow {
+  margin-top: -.2rem;
+  margin-bottom: .2rem;
+}
+
+/* 3D Liquid Blob Container */
+.blobWrap {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  margin: -.5rem 0;
+}
+
+.timeOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.time {
+  font-size: 3.8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 32px hsla(252,90%,80%,.55), 0 2px 12px rgba(0,0,0,.4);
+}
+
+.modeLabel {
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: .85;
+}
+
+/* XP Toast */
+.xpToast {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f5c542;
+  text-shadow: 0 0 14px rgba(245,197,66,.6);
+  animation: floatUp 2s ease forwards;
+  pointer-events: none;
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  70%  { opacity: 1; transform: translateX(-50%) translateY(-40px); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-60px); }
+}
+
+.lvlUp { color: #a78bfa; }
+
+/* Bottom Dock Bar */
+.bottomDock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.dockLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dockRight {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.dockIconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s, transform .15s var(--spring);
+}
+
+.dockIconBtn svg { width: 17px; height: 17px; }
+
+.dockIconBtn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: rgba(255,255,255,.15);
+  transform: scale(1.08);
+}
+
+.muted {
+  color: rgba(255,100,100,.6);
+  border-color: rgba(255,100,100,.2);
+}
+
+.loginBtn {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #fff;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  padding: .4rem .95rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all .15s var(--spring);
+}
+
+.loginBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+.userBadge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 14px var(--accent-glow);
+  transition: transform .15s var(--spring);
+}
+
+.userBadge:hover { transform: scale(1.08); }
+
+.userInitial {
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+/* Milestone overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(8,11,18,.88);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.milestoneCard {
+  background: linear-gradient(135deg, var(--surface2), var(--surface3));
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 0 80px rgba(0,0,0,.6);
+  position: relative;
+  z-index: 1;
+  animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+
+.choiceCard {
+  background: rgba(18, 21, 31, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 2;
+  animation: popIn .35s cubic-bezier(.34,1.56,.64,1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.choiceEmoji {
+  font-size: 3.2rem;
+  display: block;
+  margin-bottom: .6rem;
+}
+
+.choiceTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: .35rem;
+}
+
+.choiceSub {
+  font-size: .82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.4rem;
+}
+
+.choiceBtnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  width: 100%;
+}
+
+.primaryChoiceBtn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 700;
+  padding: .75rem 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  transition: transform .14s var(--spring), box-shadow .2s;
+}
+
+.primaryChoiceBtn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 28px rgba(124, 58, 237, 0.6);
+}
+
+.secondaryChoiceBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: .84rem;
+  font-weight: 600;
+  padding: .65rem 1.4rem;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+
+.secondaryChoiceBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes popIn {
+  from { transform: scale(.88); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.milestoneEmoji {
+  font-size: 3.6rem;
+  display: block;
+  margin-bottom: .7rem;
+}
+
+.milestoneTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: .4rem;
+}
+
+.milestoneSub {
+  font-size: .87rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1.4rem;
+}
+
+.milestoneBtn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  font-family: inherit;
+  font-size: .88rem;
+  font-weight: 700;
+  padding: .65rem 2rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px hsla(252,90%,60%,.4);
+  transition: transform .14s var(--spring);
+}
+
+.milestoneBtn:hover { transform: scale(1.05); }
+
+/* ── RESPONSIVE DISPLAY ADJUSTMENTS ─────────────────────────────────────────── */
+@media (min-height: 800px) {
+  .blobWrap {
+    width: 400px;
+    height: 400px;
+  }
+  .time {
+    font-size: 4.4rem;
+  }
+  .promptText {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-height: 680px) {
+  .pageViewport {
+    padding: 1rem 1.5rem;
+  }
+  .blobWrap {
+    width: 290px;
+    height: 290px;
+  }
+  .time {
+    font-size: 3rem;
+  }
+  .quoteBox {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .quoteBox {
+    display: none;
+  }
+  .pageViewport {
+    padding: 1.2rem 1rem;
+  }
+  .bottomDock {
+    flex-direction: column-reverse;
+    gap: .8rem;
+    align-items: center;
+  }
+}

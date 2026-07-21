@@ -1,0 +1,100 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.sep {
+  color: var(--text-muted);
+  font-size: .8rem;
+}
+
+.picker {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: .28rem .5rem;
+  border-radius: 8px;
+  transition: background .15s;
+}
+
+.trigger:hover {
+  background: var(--surface2);
+}
+
+.lbl {
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.val {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.arrow {
+  width: 10px;
+  height: 6px;
+  color: var(--text-muted);
+  transition: transform .2s;
+}
+
+.arrowOpen { transform: rotate(180deg); }
+
+.dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  transform: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .4rem;
+  display: flex;
+  gap: .3rem;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 50;
+  animation: fadeUp .15s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: .74rem;
+  font-weight: 500;
+  padding: .32rem .65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.chip:hover {
+  background: var(--surface3);
+  color: var(--text);
+  border-color: rgba(255,255,255,.18);
+}
+
+.chipActive {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: #fff;
+}

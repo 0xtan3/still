@@ -1,0 +1,88 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.mainBtn {
+  background: #ffffff;
+  color: #080b12;
+  border: none;
+  font-family: 'Syne', 'Orbitron', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  padding: .65rem 2.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+  transition: transform .14s var(--spring), background .2s, box-shadow .2s;
+  letter-spacing: .02em;
+}
+
+.mainBtn:hover {
+  transform: scale(1.05);
+  background: #f0f3ff;
+  box-shadow: 0 6px 28px rgba(255, 255, 255, 0.4);
+}
+
+.mainBtn:active {
+  transform: scale(.95);
+}
+
+.runningBtn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.runningBtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.resetBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s, transform .14s var(--spring);
+}
+
+.resetBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.resetBtn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: scale(1.08) rotate(-45deg);
+}
+
+.resetBtn:active {
+  transform: scale(.92);
+}
+
+@media (min-width: 768px) {
+  .mainBtn {
+    font-size: 1.05rem;
+    padding: .75rem 2.6rem;
+  }
+  .resetBtn {
+    width: 48px;
+    height: 48px;
+  }
+  .resetBtn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
