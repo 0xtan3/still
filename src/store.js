@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { playChime } from './utils/audio';
+import { playFocusChime, playBreakChime } from './utils/audio';
 import { getCurrentUser, logoutUser, fetchUserStats, saveUserStats } from './lib/appwrite';
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
@@ -277,14 +277,19 @@ export const useStore = create((set, get) => ({
 
   onComplete() {
     const s = get();
-    if (s.soundEnabled) {
-      playChime();
-    }
 
     if (s.mode !== 'focus') {
-      // Break complete -> prompt or auto back to focus
+      // Break complete -> play break chime & prompt return to focus
+      if (s.soundEnabled) {
+        playBreakChime();
+      }
       set({ completedPrompt: { isBreak: true, nextMode: 'focus' } });
       return;
+    }
+
+    // Focus session complete -> play focus chime
+    if (s.soundEnabled) {
+      playFocusChime();
     }
 
     // Focus session complete
