@@ -74,11 +74,7 @@ export default function AuthPage() {
 
       <header className={styles.header}>
         <Link to="/" className={styles.brand}>
-          <span className={styles.brandDot} />
-          <div className={styles.brandTextGroup}>
-            <span className={styles.brandTitleText}>CHRONO</span>
-            <span className={styles.byline}>by TENAZITY</span>
-          </div>
+          <span className={styles.brandDot} /> CHRONO
         </Link>
       </header>
 

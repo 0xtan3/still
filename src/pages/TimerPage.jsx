@@ -175,10 +175,7 @@ export default function TimerPage() {
       <header className={styles.topHeader}>
         <div className={styles.brandTitle}>
           <span className={styles.brandDot} />
-          <div className={styles.brandTextGroup}>
-            <h1 className={styles.title}>CHRONO</h1>
-            <span className={styles.byline}>by TENAZITY</span>
-          </div>
+          <h1 className={styles.title}>CHRONO</h1>
         </div>
         <div className={styles.quoteBox}>
           &ldquo;Keep going, your hardest times often lead to great moments&rdquo;
