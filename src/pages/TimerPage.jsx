@@ -7,6 +7,7 @@ import Controls     from '../components/Controls';
 import SessionDots  from '../components/SessionDots';
 import StreakBadge  from '../components/StreakBadge';
 import DurationPicker from '../components/DurationPicker';
+import MusicPlayer from '../components/MusicPlayer';
 import SettingsModal  from '../components/SettingsModal';
 import styles from './TimerPage.module.css';
 
@@ -213,6 +214,8 @@ export default function TimerPage() {
 
         <div className={styles.dockRight}>
           <StreakBadge />
+
+          <MusicPlayer />
 
           <button
             className={`${styles.dockIconBtn} ${!soundEnabled ? styles.muted : ''}`}

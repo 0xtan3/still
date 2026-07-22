@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { playFocusChime, playBreakChime, unlockAudio } from './utils/audio';
+import { playLofi, pauseLofi, setLofiVolume as updateLofiVolume, skipToNextLofiTrack, getCurrentLofiTrack } from './utils/musicApi';
 import { getCurrentUser, logoutUser, fetchUserStats, saveUserStats } from './lib/appwrite';
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
@@ -189,10 +190,37 @@ export const useStore = create((set, get) => ({
   completedPrompt: null, // { nextMode: 'short' | 'long' } | null
   selectedVisualizer: 'liquid_blob',
   selectedTheme: 'midnight',
+  isPlayingLofi: false,
+  lofiVolume: 0.5,
+  currentLofiTrack: getCurrentLofiTrack(),
   isSettingsOpen: false,
 
   toggleSettings() {
     set(s => ({ isSettingsOpen: !s.isSettingsOpen }));
+  },
+
+  toggleLofi() {
+    unlockAudio();
+    const s = get();
+    if (s.isPlayingLofi) {
+      pauseLofi();
+      set({ isPlayingLofi: false });
+    } else {
+      const activeTrack = playLofi(s.lofiVolume);
+      set({ isPlayingLofi: true, currentLofiTrack: activeTrack });
+    }
+  },
+
+  skipLofiTrack() {
+    unlockAudio();
+    const s = get();
+    const nextTrack = skipToNextLofiTrack(s.lofiVolume);
+    set({ isPlayingLofi: true, currentLofiTrack: nextTrack });
+  },
+
+  setLofiVolume(volume) {
+    set({ lofiVolume: volume });
+    updateLofiVolume(volume);
   },
 
   setVisualizer(visId) {
