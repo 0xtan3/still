@@ -26,6 +26,14 @@ function ensureConfig() {
 
 // ── Authentication API ───────────────────────────────────────────────────────
 
+export function getVerifyUrl() {
+  const envUrl = import.meta.env.VITE_APP_URL;
+  if (envUrl && envUrl.includes('chrono.tenazity.com')) {
+    return `${envUrl.replace(/\/$/, '')}/verify`;
+  }
+  return 'https://chrono.tenazity.com/verify';
+}
+
 /**
  * Register a new user with Email, Password & Name.
  * Automatically initiates verification and logs out until verified.
@@ -38,8 +46,8 @@ export async function registerUser(email, password, name) {
   // 2. Create session to authorize verification email
   await account.createEmailPasswordSession(email, password);
   
-  // 3. Send verification email pointing to /verify route
-  const verifyUrl = `${window.location.origin}/verify`;
+  // 3. Send verification email pointing to chrono.tenazity.com/verify
+  const verifyUrl = getVerifyUrl();
   await account.createVerification(verifyUrl);
   
   return newUser;
@@ -72,11 +80,19 @@ export async function loginUser(email, password) {
   return user;
 }
 
-/**
- * Verify email using userId and secret from the URL params.
- */
 export async function verifyUserEmail(userId, secret) {
-  return await account.updateVerification(userId, secret);
+  try {
+    return await account.updateVerification(userId, secret);
+  } catch (err) {
+    // If token was already consumed or user is already verified
+    try {
+      const u = await account.get();
+      if (u && u.emailVerification) {
+        return u;
+      }
+    } catch {}
+    throw err;
+  }
 }
 
 /**
@@ -85,7 +101,7 @@ export async function verifyUserEmail(userId, secret) {
 export async function resendVerificationEmail(email, password) {
   try { await account.deleteSession('current'); } catch {}
   await account.createEmailPasswordSession(email, password);
-  const verifyUrl = `${window.location.origin}/verify`;
+  const verifyUrl = getVerifyUrl();
   await account.createVerification(verifyUrl);
 }
 

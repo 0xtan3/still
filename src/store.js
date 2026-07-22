@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { playFocusChime, playBreakChime } from './utils/audio';
+import { playFocusChime, playBreakChime, unlockAudio } from './utils/audio';
 import { getCurrentUser, logoutUser, fetchUserStats, saveUserStats } from './lib/appwrite';
 
 // ── Date helpers ─────────────────────────────────────────────────────────────
@@ -214,7 +214,15 @@ export const useStore = create((set, get) => ({
   },
 
   toggleSound() {
-    set(s => ({ soundEnabled: !s.soundEnabled }));
+    unlockAudio();
+    set(s => {
+      const nextSound = !s.soundEnabled;
+      if (nextSound) {
+        if (s.mode === 'focus') playFocusChime();
+        else playBreakChime();
+      }
+      return { soundEnabled: nextSound };
+    });
   },
 
   dismissCompletedPrompt() {
@@ -222,16 +230,19 @@ export const useStore = create((set, get) => ({
   },
 
   chooseFocusAgain() {
+    unlockAudio();
     set({ completedPrompt: null, mode: 'focus', elapsed: 0, running: false });
   },
 
   chooseTakeBreak() {
+    unlockAudio();
     const s = get();
     const nextMode = s.completedPrompt?.nextMode || (s.sessions % s.totalSess === 0 ? 'long' : 'short');
     set({ completedPrompt: null, mode: nextMode, elapsed: 0, running: false });
   },
 
   setMode(mode) {
+    unlockAudio();
     const s = get();
     if (s.running) clearInterval(s._interval);
     set({ mode, running: false, elapsed: 0, startMs: null });
@@ -252,6 +263,7 @@ export const useStore = create((set, get) => ({
   },
 
   play() {
+    unlockAudio();
     set({ running: true, startMs: performance.now() });
   },
 
